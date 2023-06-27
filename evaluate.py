@@ -81,20 +81,22 @@ def matrix_general(y_true, y_pred, labels):
     print(report)
     return conf_mat
 
-def evaluate(conf_mat, labels, output_path, eval_name):
+def evaluate(conf_mat, labels, output_path, name):
     evaluation = {}
     for i, true_label in enumerate(labels):
-        class_size = np.sum(conf_mat[i])
+        class_size = int(np.sum(conf_mat[i]))
         confusion = {}
         for j, predicted_label in enumerate(labels):
-            if conf_mat[i, j] > 0 and i!= j:
-                confusion[predicted_label] = str(conf_mat[i, j])
-        evaluation[true_label] = {'class size': str(class_size), 'confusion': confusion}
-    report_file = os.path.join(output_path, eval_name)
-    with jsonlines.open(report_file, 'w') as writer:
-        for label, eval_dict in evaluation.items():
-            writer.write({label: eval_dict})
-    print("Evaluation report saved at:", report_file)
+            if conf_mat[i, j] > 0 and i != j:
+                confusion[predicted_label] = int(conf_mat[i, j])
+        evaluation[true_label] = {'class size': class_size, 'confusion': confusion}
+
+    evaluation_file = os.path.join(output_path, name)
+    with open(evaluation_file, 'w') as file:
+        json.dump(evaluation, file, indent=4)
+    print("Evaluation results saved at:", evaluation_file)
+
+    return evaluation
 
 def main(dataset_path, output_path):
     os.makedirs(output_path, exist_ok=True)
@@ -103,7 +105,7 @@ def main(dataset_path, output_path):
     result_matrix = matrix(y_true, y_pred, unique_labels)
 
     # Evaluate mistakes and generate JSONL report
-    evaluate(result_matrix, unique_labels, output_path, 'evaluation_all.jsonl')
+    evaluate(result_matrix, unique_labels, output_path, "all_evaluation.json")
 
     # DataFrame from the result matrix
     conf_df = pd.DataFrame(result_matrix, index=unique_labels, columns=unique_labels)
@@ -123,7 +125,7 @@ def main(dataset_path, output_path):
     result_matrix_general = matrix_general(y_true2,y_pred2, unique_labels2)
 
     # Evaluate mistakes and generate JSONL report
-    evaluate(result_matrix_general, unique_labels2, output_path, 'evaluation_general.jsonl')
+    evaluate(result_matrix_general, unique_labels2, output_path, "general_eval.json")
 
     # DataFrame from the result matrix
     conf_df_general = pd.DataFrame(result_matrix_general, index=unique_labels2, columns=unique_labels2)
@@ -144,3 +146,4 @@ if __name__ == '__main__':
         dataset_path = sys.argv[1]
         output_path = sys.argv[2]
         main(dataset_path, output_path)
+

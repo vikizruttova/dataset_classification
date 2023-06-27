@@ -98,6 +98,25 @@ def evaluate(conf_mat, labels, output_path, name):
 
     return evaluation
 
+def row_mistakes(y_true, y_pred, output_path, name):
+    rows = {}
+    for i in range(len(y_true)):
+        true_label = y_true[i]
+        pred_label = y_pred[i]
+        if true_label != pred_label:
+            if true_label not in rows:
+                rows[true_label] = {'class size': 0, 'confusion': {}}
+            if pred_label not in rows[true_label]['confusion']:
+                rows[true_label]['confusion'][pred_label] = []
+            rows[true_label]['confusion'][pred_label].append(i+1)
+            rows[true_label]['class size'] += 1
+
+    row_file = os.path.join(output_path, name)
+    with open(row_file, 'w') as file:
+        json.dump(rows, file, indent=4)
+    print("Row mistakes results saved at:", row_file)
+
+
 def main(dataset_path, output_path):
     os.makedirs(output_path, exist_ok=True)
     #for all labels
@@ -106,6 +125,7 @@ def main(dataset_path, output_path):
 
     # Evaluate mistakes and generate JSONL report
     evaluate(result_matrix, unique_labels, output_path, "all_evaluation.json")
+    row_mistakes(y_true, y_pred, output_path, 'all_mistakes.json')
 
     # DataFrame from the result matrix
     conf_df = pd.DataFrame(result_matrix, index=unique_labels, columns=unique_labels)
@@ -126,6 +146,7 @@ def main(dataset_path, output_path):
 
     # Evaluate mistakes and generate JSONL report
     evaluate(result_matrix_general, unique_labels2, output_path, "general_eval.json")
+    row_mistakes(y_true2, y_pred2 , output_path, "general_mistakes.json")
 
     # DataFrame from the result matrix
     conf_df_general = pd.DataFrame(result_matrix_general, index=unique_labels2, columns=unique_labels2)

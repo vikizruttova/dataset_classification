@@ -83,20 +83,16 @@ def calculate_roc(y_true, y_pred, output_path, name):
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
 
-    # Convert true labels to binary format
+    # convert true labels to binary
     lb = LabelBinarizer()
     y_true_binary = lb.fit_transform(y_true)
-
-    # Convert predicted labels to binary format
     y_pred_binary = lb.transform(y_pred)
 
-    # Calculate the false positive rate (FPR), true positive rate (TPR), and thresholds
+    # alse positive rate (FPR), true positive rate (TPR), and thresholds
     fpr, tpr, thresholds = roc_curve(y_true_binary, y_pred_binary)
-
-    # Calculate the area under the ROC curve (AUC)
     auc = roc_auc_score(y_true_binary, y_pred_binary)
 
-    # Plot the ROC curve
+    # plot the ROC curve
     plt.figure(figsize=(8, 8))
     plt.plot(fpr, tpr, label=f'AUC = {auc:.2f}')
     plt.plot([0, 1], [0, 1], 'k--')
@@ -125,7 +121,6 @@ def main(dataset_path, output_path):
     plt.savefig(plot_file)
     print("Confusion matrix plot saved at:", plot_file)
 
-    # Calculate and plot the ROC curve
     calculate_roc(y_true, y_pred, output_path, 'roc_curve.png')
 
 if __name__ == '__main__':

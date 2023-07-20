@@ -2,12 +2,13 @@ import json
 import sys
 import requests
 
-#run this program in terminal: python3 classify.py dataset.jsonl
+#run this program in terminal: python3 classify.py dataset.jsonl API_endpoint [TOKEN]
 
-def api_call(text):
-    url = 'http://10.19.3.26:8000/classify'
+def api_call(text, api_url, token=None):
     payload = {'text': text}
-    response = requests.post(url, json=payload)
+    if token:
+        payload['token'] = token
+    response = requests.post(api_url, json=payload)
     if response.status_code == 200:
         data = response.json()
         if data and 'label' in data[0]:
@@ -15,7 +16,7 @@ def api_call(text):
     else:
         print("Error "+ str(response.status_code))
 
-def main(dataset_path):
+def main(dataset_path, api_url, token=None):
     with open(dataset_path, 'r') as file:
         dataset = file.readlines()
 
@@ -25,7 +26,7 @@ def main(dataset_path):
     for line in dataset:
         item = json.loads(line)
         text = item['text']
-        label = api_call(text)
+        label = api_call(text, api_url, token)
         item['classification_output'] = label
         results.append(item)
 
@@ -40,8 +41,11 @@ def main(dataset_path):
     print(f"Classification labels added to the dataset. Saved at: {output_path}")
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print("Usage: python3 classify.py <dataset_path>")
+    if len(sys.argv) < 3:
+        print("Usage: python3 classify.py <dataset_path> <API_endpoint> [TOKEN]")
     else:
         dataset_path = sys.argv[1]
-        main(dataset_path)
+        api_url = sys.argv[2]
+        token = sys.argv[3] if len(sys.argv) > 3 else None
+        main(dataset_path, api_url, token)
+

@@ -16,7 +16,7 @@ def process_dataset(file_path):
         for line in file:
             data = json.loads(line)
             text = data['text']
-            label = data['labels'][0]['label']
+            label = data['labels'][0]['label'] #  change this based on the dataset hierarchy
             api_label = data['classification_output']
             y_true.append(label)
             y_pred.append(api_label)
@@ -123,11 +123,11 @@ def main(dataset_path, output_path):
     y_true, y_pred, unique_labels = process_dataset(dataset_path)
     result_matrix = matrix(y_true, y_pred, unique_labels)
 
-    # Evaluate mistakes and generate JSONL report
+    # evaluate mistakes and generate JSONL report
     evaluate(result_matrix, unique_labels, output_path, "all_evaluation.json")
     row_mistakes(y_true, y_pred, output_path, 'all_mistakes.json')
 
-    # DataFrame from the result matrix
+    # dataFrame from the result matrix
     conf_df = pd.DataFrame(result_matrix, index=unique_labels, columns=unique_labels)
     plt.figure(figsize=(20, 12))
     sns.heatmap(conf_df, annot=True, fmt='d', annot_kws={'fontsize': 10}, xticklabels=unique_labels, yticklabels=unique_labels, cmap='summer')
@@ -144,11 +144,11 @@ def main(dataset_path, output_path):
     y_true2, y_pred2, unique_labels2 = process_dataset_general(dataset_path)
     result_matrix_general = matrix_general(y_true2,y_pred2, unique_labels2)
 
-    # Evaluate mistakes and generate JSONL report
+    # evaluate mistakes and generate JSONL report
     evaluate(result_matrix_general, unique_labels2, output_path, "general_eval.json")
     row_mistakes(y_true2, y_pred2 , output_path, "general_mistakes.json")
 
-    # DataFrame from the result matrix
+    # dataFrame from the result matrix
     conf_df_general = pd.DataFrame(result_matrix_general, index=unique_labels2, columns=unique_labels2)
     plt.figure(figsize=(20, 12))
     sns.heatmap(conf_df_general, annot=True, fmt='d', annot_kws={'fontsize': 10}, xticklabels=unique_labels2, yticklabels=unique_labels2, cmap='summer')

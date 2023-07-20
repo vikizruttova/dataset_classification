@@ -11,48 +11,53 @@ import json
 def count_labels(dataset):
     label_counts = {}
     for labels in dataset:
-        for label in labels['labels']:
-            label_name = label['label']
-            label_counts[label_name] = label_counts.get(label_name, 0) + 1
+        if 'labels' in labels:
+            for label in labels['labels']:
+                label_name = label['label']
+                label_counts[label_name] = label_counts.get(label_name, 0) + 1
     return label_counts
 
 def count_labels_main(dataset):
     label_counts = {}
     for labels in dataset:
-        for label in labels['labels']:
-            label_name = label['label'].split('.')[0]
-            label_counts[label_name] = label_counts.get(label_name, 0) + 1
+        if 'labels' in labels:
+            for label in labels['labels']:
+                label_name = label['label'].split('.')[0]
+                label_counts[label_name] = label_counts.get(label_name, 0) + 1
     return label_counts
 
 def count_languages(dataset):
     language_counts = {}
     for data in dataset:
-        language = data['lang']
-        language_counts[language] = language_counts.get(language, 0) + 1
+        if 'lang' in data:
+            language = data['lang']
+            language_counts[language] = language_counts.get(language, 0) + 1
     return language_counts
 
 def count_modes(dataset):
     mode_counts = {}
     for data in dataset:
-        mode = data['mode']
-        mode_counts[mode] = mode_counts.get(mode, 0) + 1
+        if 'mode' in data:
+            mode = data['mode']
+            mode_counts[mode] = mode_counts.get(mode, 0) + 1
     return mode_counts
 
 def count_labels_by_lang(dataset):
     label_counts = {}
     for data in dataset:
-        labels = data['labels']
-        mode = data['mode']
-        lang = data['lang']
-        if lang not in label_counts:
-            label_counts[lang] = {}
-        if mode not in label_counts[lang]:
-            label_counts[lang][mode] = {}
-        for label in labels:
-            label_name = label['label']
-            if label_name not in label_counts[lang][mode]:
-                label_counts[lang][mode][label_name] = 0
-            label_counts[lang][mode][label_name] += 1
+        if 'labels' in data and 'mode' in data and 'lang' in data:
+            labels = data['labels']
+            mode = data['mode']
+            lang = data['lang']
+            if lang not in label_counts:
+                label_counts[lang] = {}
+            if mode not in label_counts[lang]:
+                label_counts[lang][mode] = {}
+            for label in labels:
+                label_name = label['label']
+                if label_name not in label_counts[lang][mode]:
+                    label_counts[lang][mode][label_name] = 0
+                label_counts[lang][mode][label_name] += 1
     return label_counts
 
 

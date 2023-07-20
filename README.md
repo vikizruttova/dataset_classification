@@ -1,7 +1,7 @@
 # Tool for dataset classification
 
 
-## multiclass classification
+## Multiclass classification
 
 **x_ray.py** - takes a look at the dataset and returns graphs: modes, languages, distribution of labels
 
@@ -9,7 +9,7 @@
 
 **evaluate.py** - takes adjusted dataset from classify.py, creates confusion matrices, classification reports, and mistakes in classification.
 
-## multilabel classification
+## Multilabel classification
 
 **x_ray.py** - takes a look at the dataset and returns graphs: modes, languages, distribution of labels
 
@@ -17,12 +17,12 @@
 
 **evaluate.py** - takes adjusted dataset from classify.py, creates confusion matrices, classification reports, and mistakes in classification.
 
-**transformer.py** - adjust the dataset for multilabel evaluation - creates binary represnetation of each label.
+**transformer.py** - adjust the dataset for multilabel evaluation - creates a binary representation of each label.
 
 
-## binary classification
+## Binary classification
 
-**classify.py** - takes JSONL dataset and each entry is classified in API for hate speech detection and returns adjusted dataset - hatespeech or not(other)
+**classify.py** - takes JSONL dataset and each entry is classified in API for hate speech detection and returns adjusted dataset - hate-speech or not(other)
 
-**evaluate.py** - takes adjusted dataset from classify.py, creates confusion matrices, classification reports and roc curve.
+**evaluate.py** - takes adjusted dataset from classify.py, creates confusion matrices, classification reports, and roc curve.
 

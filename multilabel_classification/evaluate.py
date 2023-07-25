@@ -18,7 +18,7 @@ from sklearn.metrics import (
 def evaluate_dataset(dataset_file, output_dir):
     y_true = []
     y_pred = []
-    label_names = []
+    label_names = set()
 
     with open(dataset_file, 'r') as file:
         for line in file:
@@ -26,12 +26,15 @@ def evaluate_dataset(dataset_file, output_dir):
             labels = data['labels']
             classification_output = data['classification_output']
 
-            y_true.append([labels[key] for key in sorted(labels.keys())])
-            y_pred.append([classification_output[key] for key in sorted(classification_output.keys())])
-            label_names = sorted(labels.keys())
+            # Ensure that labels and classification_output use the same sorted keys
+            sorted_keys = sorted(labels.keys())
+            y_true.append([labels[key] for key in sorted_keys])
+            y_pred.append([classification_output[key] for key in sorted_keys])
+            label_names.update(sorted_keys)  # Add the keys to the set of label names
 
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
+    label_names = sorted(list(label_names))
 
     exact_match_ratio = accuracy_score(y_true, y_pred, normalize=True, sample_weight=None)
     hamming_loss_value = hamming_loss(y_true, y_pred)

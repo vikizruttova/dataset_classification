@@ -7,9 +7,9 @@ import matplotlib.gridspec as gridspec
 from matplotlib.colors import LinearSegmentedColormap, Normalize
 
 def compute_metrics(df, labels):
-    precision = df.apply(lambda x: x[x.name] / sum(x), axis=1).round(2)
-    recall = df.apply(lambda x: x[x.name] / sum(x), axis=0).round(2)
-    accuracy = (df.values.diagonal().sum() / df.values.sum()).round(2)
+    recall = df.apply(lambda x: x[x.name] / sum(x), axis=1).round(4)  # vymenene
+    precision = df.apply(lambda x: x[x.name] / sum(x), axis=0).round(4)
+    accuracy = (df.values.diagonal().sum() / df.values.sum()).round(4)
 
     df['precision'] = precision
     df.loc['recall'] = recall
@@ -25,14 +25,14 @@ def visualize_metrics(df, labels):
     accuracy_value = pd.DataFrame([[df.loc['recall', 'precision']]], columns=[''], index=['accuracy'])
 
     # Setup gridspec for visualization
-    fig = plt.figure(figsize=(10, 8))
+    fig = plt.figure(figsize=(8, 8))
     gs = gridspec.GridSpec(2, 2, width_ratios=[3, 1], height_ratios=[3, 1], wspace=0.2, hspace=0.2)
 
 
     colors = ["#D31B40","#1BD3AE"]
     custom_cmap = LinearSegmentedColormap.from_list("custom", colors)
     cm_cmap =LinearSegmentedColormap.from_list("custom",["#F0F6FD","#2D83E4"])
-    norm = Normalize(vmin=(1/labels), vmax=1)
+    norm = Normalize(vmin=(1/len(labels)), vmax=1)
     
 
     ax0 = plt.subplot(gs[0])
@@ -57,7 +57,7 @@ def visualize_metrics(df, labels):
 
     ax3 = plt.subplot(gs[3])
     sns.heatmap(accuracy_value, annot=True, fmt=".2f", cmap=custom_cmap, norm=norm, cbar=False, ax=ax3, xticklabels=False)
-    ax3.set_xlabel("Accuracy")
+    ax3.set_xlabel("")
     ax1.set_xticks([])
     ax2.set_ylabel("")
     ax3.set_yticks([])

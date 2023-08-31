@@ -8,7 +8,7 @@ This GitHub project provides a versatile set of tools for classifying datasets a
 
 🔍 **classify.py** - With this script, you can classify entries in a JSONL dataset using an API for hate speech detection. It then returns an adjusted dataset, enhancing its classification accuracy.
 
-📈 **evaluate.py** - Evaluate your adjusted dataset using this script. It generates confusion matrices, the classification reports, and identifies misclassifications. Moreover, it introduces the concept of clarity matrices, which provide a specialized evaluation by allowing you to split datasets based on chosen metrics (e.g., [lang], [lang, mode]) and subsequently generate evaluation metrics and ROC AUC curves for each split.
+📈 **evaluate.py** - Evaluate your adjusted dataset using this script. It generates confusion matrices, the classification reports, and identifies misclassifications. Moreover, it introduces the concept of clarity matrices, which provide a specialized evaluation. Additionally, you are able to split datasets based on chosen metrics (e.g., [lang], [lang, mode]) and subsequently generate evaluation metrics and ROC AUC curves for each split.
 
 <p align="center">
     <strong>The Clarity Matrix</strong>
@@ -16,7 +16,7 @@ This GitHub project provides a versatile set of tools for classifying datasets a
   <img width="670" alt="Screenshot 2023-08-31 at 12 31 15" src="https://github.com/vikizruttova/dataset_classification/assets/72280373/7e00cffc-b3d5-4095-bcf8-00a002ce3754">
 </p>
 
-<strong>The ROC curves for each label in whole dataset</strong>
+<strong>The ROC curves for each label in the whole dataset</strong>
   <br>
 <p align="center">
   <img width="1227" alt="Screenshot 2023-08-31 at 12 31 27" src="https://github.com/vikizruttova/dataset_classification/assets/72280373/0625cb04-0e27-47c1-924e-cb2f1c9de70b">

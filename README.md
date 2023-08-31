@@ -8,7 +8,7 @@ This GitHub project provides a versatile set of tools for classifying datasets a
 
 🔍 **classify.py** - With this script, you can classify entries in a JSONL dataset using an API for hate speech detection. It then returns an adjusted dataset, enhancing its classification accuracy.
 
-📈 **evaluate.py** - Evaluate your adjusted dataset using this script. It generates confusion matrices, the classification reports, and identifies misclassifications. Moreover, it introduces the concept of clarity matrices, which provide a specialized evaluation. Additionally, you are able to split datasets based on chosen metrics (e.g., [lang], [lang, mode]) and subsequently generate evaluation metrics and ROC AUC curves for each split.
+📈 **evaluate.py** - Evaluate your adjusted dataset using this script. It generates confusion matrices, the classification reports, and identifies misclassifications. Moreover, it introduces the concept of clarity matrices, which provide a specialized evaluation. Additionally, you are able to split datasets based on chosen metrics _(e.g., [lang], [lang, mode])_ and subsequently generate evaluation metrics and ROC AUC curves for each split.
 
 <p align="center">
     <strong>The Clarity Matrix</strong>

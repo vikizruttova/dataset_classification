@@ -281,7 +281,7 @@ def main(file_path, output_path, split_by_fields=['lang']):
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
-        print("Usage: python3 eval_with_roc.py <dataset_path> <output_path> [<split_by_field1> <split_by_field2> ...]")
+        print("Usage: python3 evaluate.py <dataset_path> <output_path> [<split_by_field1> <split_by_field2> ...]")
     else:
         dataset_path = sys.argv[1]
         output_path = sys.argv[2]

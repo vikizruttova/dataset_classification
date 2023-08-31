@@ -7,7 +7,7 @@
 
 **classify.py** - takes JSONL dataset and each entry is classified in API for hate speech detection and returns adjusted dataset
 
-**evaluate.py** - takes adjusted dataset from classify.py, creates confusion matrices, classification reports, and mistakes in classification.
+**eval_with_roc.py** - takes adjusted dataset from classify.py, creates confusion matrices, classification reports, and mistakes in classification. Additionally, it makes **clarity matrices** (confusion matrices) for each of the splits - the ability to split datasets by chosen metrics _(for example [lang], or [lang, mode], etc.)_ and create the evaluation for each of the splits with confusion matrices and ROC AUC curve.
 
 ## Multilabel classification
 

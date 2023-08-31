@@ -14,11 +14,20 @@ binary_classification/output/
 binary_classification/original_dataset.jsonl
 binary_classification/modified_dataset.jsonl
 multilabel_classification/output/
+multiclass_classification/evaluate.py
+multiclass_classification/rocauc.py
 api.txt
 .env
 node_modules/
 .idea/
 transformed_multilabels.jsonl
+multiclass_classification/old_evaluate.py
+TEST/
+modify.py
+dtst.jsonl
+modified_dtst.jsonl
+__pycache__/
+
 
 
 

@@ -8,9 +8,27 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from tqdm import tqdm
-from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.metrics import confusion_matrix, classification_report, roc_auc_score, roc_curve
 from clarity_matrix import generate_clarity_matrix
 import itertools
+
+# Function to calculate ROC AUC and plot ROC curve
+def plot_roc_curve(true_labels, predicted_labels, scores, label):
+    true_labels_binary = np.array(true_labels) == label  # Construct true_labels_binary correctly
+    fpr, tpr, _ = roc_curve(true_labels_binary, scores)
+    scores_label = np.where(predicted_labels == label, scores, 1 - scores)
+    auc_score = roc_auc_score(true_labels_binary, scores_label)
+    
+    plt.plot(fpr, tpr, color='purple', lw=2, label='ROC curve (AUC = %0.2f)' % auc_score)
+    plt.plot([0, 1], [0, 1], color='lightgrey', lw=2, linestyle='--')
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title(f'ROC Curve - Class: {label}', fontsize=12, fontweight='bold')
+    plt.legend(loc="lower right")
+
+
 
 def plot_figure_on_ax(fig, ax):
     """
@@ -24,19 +42,21 @@ def plot_figure_on_ax(fig, ax):
     ax.axis('off') 
 
 def read_data(file_path):
-    y_true, y_pred = [], []
+    y_true, y_pred, scores = [], [], []
 
     with open(file_path, 'r') as file:
         for line in tqdm(file, desc="Reading file"):
             data = json.loads(line)
             true_label = data.get("labels")
             predicted_label = data.get('classification_output')
+            score = predicted_label.get('score') if predicted_label else None
 
-            if true_label is not None and predicted_label is not None:
+            if true_label is not None and predicted_label is not None and score is not None:
                 y_true.append(true_label)
-                y_pred.append(predicted_label)
+                y_pred.append(predicted_label['label'])
+                scores.append(score)
 
-    return y_true, y_pred
+    return y_true, y_pred, scores
 
 def evaluate(conf_mat, labels, output_path, name):
     evaluation = {}
@@ -104,8 +124,7 @@ def get_unique_values_for_fields(file_path, fields):
 
 
 def filter_data_by_fields(file_path, field_values):
-    """Filter data by specific field-value pairs."""
-    y_true, y_pred = [], []
+    y_true, y_pred, scores = [], [], []
 
     with open(file_path, 'r') as file:
         for line in file:
@@ -113,18 +132,22 @@ def filter_data_by_fields(file_path, field_values):
             if all(data.get(field) == value for field, value in field_values.items()):
                 true_label = data.get('labels')
                 predicted_label = data.get('classification_output')
-                if true_label is not None and predicted_label is not None:
+                score = predicted_label.get('score') if predicted_label else None
+                if true_label is not None and predicted_label is not None and score is not None:
                     y_true.append(true_label)
-                    y_pred.append(predicted_label)
+                    y_pred.append(predicted_label['label'])
+                    scores.append(score)
 
-    return y_true, y_pred
+    return y_true, y_pred, scores
+
 
 
 def main(file_path, output_path, split_by_fields=['lang']):
     os.makedirs(output_path, exist_ok=True)
+    roc_auc_scores = {} 
 
     if not split_by_fields:
-        y_true, y_pred = read_data(file_path)
+        y_true, y_pred, scores = read_data(file_path)
         value_output_path = os.path.join(output_path, "whole_dataset")
         os.makedirs(value_output_path, exist_ok=True)
         unique_labels = generate_classification_report(y_true, y_pred, value_output_path)
@@ -136,6 +159,48 @@ def main(file_path, output_path, split_by_fields=['lang']):
         clarity_save_path = os.path.join(value_output_path, 'clarity_matrix.png')
         clarity_fig.savefig(clarity_save_path)
         plt.close(clarity_fig)
+
+        # ROC and AUC: 
+        df = pd.read_json(file_path, lines=True)
+        true_labels = df['labels']
+        predicted_labels = df['classification_output'].apply(lambda x: x['label'])
+        scores = df['classification_output'].apply(lambda x: x['score'])
+
+        # Calculate ROC AUC scores
+        unique_labels = df['labels'].unique()
+        roc_auc_scores = {}
+        for label in unique_labels:
+            true_labels_binary = (true_labels == label)
+            scores_label = np.where(predicted_labels == label, scores, 1 - scores)
+            roc_auc_scores[label] = roc_auc_score(true_labels_binary, scores_label)
+
+        # Create subplots for ROC curves
+        fig, axes = plt.subplots(nrows=1, ncols=len(unique_labels), figsize=(15, 5))
+        fig.patch.set_facecolor('gray')
+
+        # Plot ROC curves and display AUC values
+        for i, label in enumerate(unique_labels):
+            true_labels_binary = (true_labels == label)
+            scores_label = np.where(predicted_labels == label, scores, 1 - scores)
+            fpr, tpr, _ = roc_curve(true_labels_binary, scores_label)
+            auc_score = roc_auc_scores[label]
+            
+            # Plot ROC curve on the corresponding subplot
+            axes[i].plot(fpr, tpr, color='orange', lw=2, label='ROC curve (AUC = %0.2f)' % auc_score)
+            axes[i].plot([0, 1], [0, 1], color='lightgrey', lw=2, linestyle='--')
+            axes[i].set_xlim([0.0, 1.0])
+            axes[i].set_ylim([0.0, 1.05])
+            axes[i].set_xlabel('False Positive Rate')
+            axes[i].set_ylabel('True Positive Rate')
+            axes[i].set_title(f'ROC Curve - Class: {label}', fontsize=12, fontweight='bold')
+            axes[i].legend(loc="lower right")
+
+        # Adjust spacing and save the combined image
+        plt.tight_layout()
+        roc_save_path = os.path.join(value_output_path, 'combined_roc_curves.png')
+        fig.savefig(roc_save_path)  # Save the combined ROC curves plot
+        plt.close(fig)  # Close the figure
+
         return
 
     unique_values_dict = get_unique_values_for_fields(file_path, split_by_fields)
@@ -151,17 +216,45 @@ def main(file_path, output_path, split_by_fields=['lang']):
     fig, axs = plt.subplots(grid_size, grid_size, figsize=(total_width, total_height))
 
     for idx, combo in enumerate(all_combinations):
-        
-
-        y_true, y_pred = filter_data_by_fields(file_path, combo)
+        y_true, y_pred, scores = filter_data_by_fields(file_path, combo)
         combo_name = "_".join([f"{k}={v}" for k, v in combo.items()])
         combo_title = combo_name + f" size= {len(y_true)}"
         print(f"Processing for {combo_name}")
-        #create directory for the split
+
+        # Create directory for the split
         value_output_path = os.path.join(output_path, combo_name)
         os.makedirs(value_output_path, exist_ok=True)
+        unique_labels = generate_classification_report(y_true, y_pred, value_output_path)  # Get unique_labels here
 
-        unique_labels = generate_classification_report(y_true, y_pred, value_output_path)
+        roc_fig, roc_axes = plt.subplots(nrows=1, ncols=len(unique_labels), figsize=(15, 5))
+        roc_fig.patch.set_facecolor('lightgray')
+        
+        # Calculate ROC AUC scores and plot ROC curves
+        for i, label in enumerate(unique_labels):
+            true_labels_binary = (np.array(y_true) == label)
+            scores_label = np.where(np.array(y_pred) == label, scores, [1 - score for score in scores])
+            fpr, tpr, _ = roc_curve(true_labels_binary, scores_label)  # Calculate fpr and tpr here
+            auc_score = roc_auc_score(true_labels_binary, scores_label)
+            
+            # Save ROC AUC score for this split and label
+            roc_auc_scores.setdefault(combo_name, {})[label] = auc_score
+            
+            # Plot ROC curve on the corresponding subplot
+            roc_axes[i].plot(fpr, tpr, color='purple', lw=2, label='ROC curve (AUC = %0.2f)' % auc_score)
+            roc_axes[i].plot([0, 1], [0, 1], color='lightgrey', lw=2, linestyle='--')
+            roc_axes[i].set_xlim([0.0, 1.0])
+            roc_axes[i].set_ylim([0.0, 1.05])
+            roc_axes[i].set_xlabel('False Positive Rate')
+            roc_axes[i].set_ylabel('True Positive Rate')
+            roc_axes[i].set_title(f'ROC Curve - Class: {label}', fontsize=12, fontweight='bold')
+            roc_axes[i].legend(loc="lower right")
+
+        # Adjust spacing and save the combined image
+        plt.tight_layout()
+        roc_save_path = os.path.join(value_output_path, f'combined_roc_curves_{combo_name}.png')
+        roc_fig.savefig(roc_save_path)  # Save the combined ROC curves plot
+        plt.close(roc_fig)
+
         result_matrix = confusion_matrix(y_true, y_pred, labels=sorted(list(set(y_true) | set(y_pred))))
         evaluate(result_matrix, unique_labels, value_output_path, "evaluation.json")
         row_mistakes(y_true, y_pred, value_output_path, 'mistakes.json')
@@ -188,7 +281,7 @@ def main(file_path, output_path, split_by_fields=['lang']):
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
-        print("Usage: python3 splitby_eval.py <dataset_path> <output_path> [<split_by_field1> <split_by_field2> ...]")
+        print("Usage: python3 eval_with_roc.py <dataset_path> <output_path> [<split_by_field1> <split_by_field2> ...]")
     else:
         dataset_path = sys.argv[1]
         output_path = sys.argv[2]

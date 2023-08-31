@@ -12,7 +12,7 @@ def api_call(text, api_url, token=None):
     if response.status_code == 200:
         data = response.json()
         if data and 'label' in data[0]:
-            return data[0]['label']
+            return data[0] #['label']
     else:
         print("Error "+ str(response.status_code))
 

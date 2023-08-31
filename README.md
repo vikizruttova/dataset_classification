@@ -12,8 +12,10 @@ This GitHub project provides a versatile set of tools for classifying datasets a
 
 <p align="center">
     <strong>The Clarity Matrix</strong>
-  <br>
+    <p align="center">The custom confusion matrix shows the calculations of recall, precision, and accuracy of the model. </p><br>
+  <p align="center">
   <img width="670" alt="Screenshot 2023-08-31 at 12 31 15" src="https://github.com/vikizruttova/dataset_classification/assets/72280373/7e00cffc-b3d5-4095-bcf8-00a002ce3754">
+  </p>
 </p>
 
 <strong>The ROC curves for each label in the whole dataset</strong>
